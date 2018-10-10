@@ -5,34 +5,79 @@ import br.com.pintos.layout240.ETipo.DATA
 import br.com.pintos.layout240.ETipo.HORA
 import br.com.pintos.layout240.ETipo.NUM
 import br.com.pintos.layout240.ETipo.VALOR
+import org.apache.poi.ss.formula.functions.T
+import kotlin.reflect.KProperty1
 
-open class Registro(val linha: String) {
-  val banco = numero(1, 3)
-  val lote = numero(4, 7)
-  val registro = numero(8, 8)
+abstract class Registro<T : Registro<T>>(val linha: String) {
+  abstract val campos: List<KProperty1<T, Campo>>
+  val banco = numero(
+    1,
+    3
+  )
+  val lote = numero(
+    4,
+    7
+  )
+  val registro = numero(
+    8,
+    8
+  )
 
   protected fun numero(inicio: Int, fim: Int): Campo {
-    return Campo(NUM, linha.extraiCampo(inicio, fim))
+    return Campo(
+      NUM,
+      linha.extraiCampo(
+        inicio,
+        fim
+      )
+    )
   }
 
   protected fun string(inicio: Int, fim: Int): Campo {
-    return Campo(ALFA, linha.extraiCampo(inicio, fim))
+    return Campo(
+      ALFA,
+      linha.extraiCampo(
+        inicio,
+        fim
+      )
+    )
   }
 
   protected fun valor(inicio: Int, fim: Int): Campo {
-    return Campo(VALOR, linha.extraiCampo(inicio, fim))
+    return Campo(
+      VALOR,
+      linha.extraiCampo(
+        inicio,
+        fim
+      )
+    )
   }
 
   protected fun date(inicio: Int): Campo {
-    return Campo(DATA, linha.extraiCampo(inicio, inicio + 7))
+    return Campo(
+      DATA,
+      linha.extraiCampo(
+        inicio,
+        inicio + 7
+      )
+    )
   }
 
   protected fun hora(inicio: Int): Campo {
-    return Campo(HORA, linha.extraiCampo(inicio, inicio + 5))
+    return Campo(
+      HORA,
+      linha.extraiCampo(
+        inicio,
+        inicio + 5
+      )
+    )
   }
 
   protected fun tipoInscricao(inicio: Int): Campo {
-    val tipo = when (linha.extraiCampo(inicio, inicio)) {
+    val tipo = when (linha.extraiCampo(
+      inicio,
+      inicio
+    )) {
       "0"  -> "Isento/Não Informado"
       "1"  -> "CPF"
       "2"  -> "CGC/CNPJ"
@@ -40,37 +85,64 @@ open class Registro(val linha: String) {
       "9"  -> "Outros"
       else -> ""
     }
-    return Campo(ALFA, tipo)
+    return Campo(
+      ALFA,
+      tipo
+    )
   }
 
   protected fun numeroDigito(inicio: Int, fim: Int): Campo {
-    val numero = linha.extraiCampo(inicio, fim - 1)
-    val digito = linha.extraiCampo(fim, fim)
-    return Campo(ALFA, "$numero/$digito")
+    val numero = linha.extraiCampo(
+      inicio,
+      fim - 1
+    )
+    val digito = linha.extraiCampo(
+      fim,
+      fim
+    )
+    return Campo(
+      ALFA,
+      "$numero/$digito"
+    )
   }
 
   protected fun tipoArquivo(inicio: Int): Campo {
-    val tipo = when (linha.extraiCampo(inicio, inicio)) {
+    val tipo = when (linha.extraiCampo(
+      inicio,
+      inicio
+    )) {
       "0"  -> "Remessa"
       "1"  -> "Retorno"
       else -> ""
     }
-    return Campo(ALFA, tipo)
+    return Campo(
+      ALFA,
+      tipo
+    )
   }
 
   protected fun naturezaLancamento(inicio: Int): Campo {
-    val tipo = when (linha.extraiCampo(inicio, inicio + 2)) {
+    val tipo = when (linha.extraiCampo(
+      inicio,
+      inicio + 2
+    )) {
       "DPV" -> "TIPO DISPONÍVEL"
       "SCR" -> "TIPO VINCULADO"
       "SSR" -> "TIPO BLOQUEADO"
       "CDS" -> "COMPOSIÇÃO DE DIVERSOS SALDOS"
       else  -> ""
     }
-    return Campo(ALFA, tipo)
+    return Campo(
+      ALFA,
+      tipo
+    )
   }
 
   protected fun categoriaLancamento(inicio: Int): Campo {
-    val tipo = when (linha.extraiCampo(inicio, inicio + 3)) {
+    val tipo = when (linha.extraiCampo(
+      inicio,
+      inicio + 3
+    )) {
       "101" -> "Cheques"
       "102" -> "Encargos"
       "103" -> "Estornos"
@@ -115,73 +187,218 @@ open class Registro(val linha: String) {
       "220" -> "Depósito em Espécie"
       else  -> ""
     }
-    return Campo(ALFA, tipo)
+    return Campo(
+      ALFA,
+      tipo
+    )
   }
 
   protected fun posicaoSaldo(inicio: Int): Campo {
-    val tipo = when (linha.extraiCampo(inicio, inicio)) {
+    val tipo = when (linha.extraiCampo(
+      inicio,
+      inicio
+    )) {
       "P"  -> "Parcial"
       "F"  -> "Final"
       "I"  -> "Intra-Dia"
       else -> ""
     }
-    return Campo(ALFA, tipo)
+    return Campo(
+      ALFA,
+      tipo
+    )
   }
 }
 
-class RegistroTrailerLote(linha: String) : Registro(linha) {
-  val bloqueadoAcima24 = valor(89, 106)
-  val limite = valor(107, 124)
-  val bloqueadoAte24 = valor(89, 106)
+class RegistroTrailerLote(linha: String) : Registro<RegistroTrailerLote>(linha) {
+  override val campos: List<KProperty1<RegistroTrailerLote, Campo>>
+    get() = listOf()
+  val bloqueadoAcima24 = valor(
+    89,
+    106
+  )
+  val limite = valor(
+    107,
+    124
+  )
+  val bloqueadoAte24 = valor(
+    89,
+    106
+  )
   val dataSaldoFilna = date(143)
-  val valorSaldoFinal = valor(151,168)
-  val situacaoSaldoFinal = string(169, 168)
+  val valorSaldoFinal = valor(
+    151,
+    168
+  )
+  val situacaoSaldoFinal = string(
+    169,
+    168
+  )
   val posicaoSaldoFinal = posicaoSaldo(170)
-  val quantidadeRegistros = numero(171, 176)
-  val totalDebitos = valor(177, 194)
-  val totalCreditos = valor(195, 212)
+  val quantidadeRegistros = numero(
+    171,
+    176
+  )
+  val totalDebitos = valor(
+    177,
+    194
+  )
+  val totalCreditos = valor(
+    195,
+    212
+  )
 }
 
-class RegistroHeaderLote(linha: String) : Registro(linha) {
+abstract class RegistroHeaderLote<T :RegistroHeaderLote<T>>(linha: String) : Registro<T>(linha) {
+
+}
+
+class RegistroHeaderLoteExtrato(linha: String) : RegistroHeaderLote<RegistroHeaderLoteExtrato>(linha) {
+  override val campos: List<KProperty1<RegistroHeaderLoteExtrato, Campo>>
+    get() = listOf(
+      RegistroHeaderLoteExtrato::dataSaldoInicial,
+      RegistroHeaderLoteExtrato::valorSaldoInicial,
+      RegistroHeaderLoteExtrato::situacaoSaldoInicial,
+      RegistroHeaderLoteExtrato::posicaoSaldoInicial,
+      RegistroHeaderLoteExtrato::moeda,
+      RegistroHeaderLoteExtrato::sequencia
+    )
+  val registros = ArrayList<RegistroDetalhe>()
+  fun add(registro: RegistroDetalhe) = registros.add(registro)
+
   val dataSaldoInicial = date(143)
-  val valorSaldoInicial = valor(151, 168)
-  val situacaoSaldoInicial = string(169, 169)
+  val valorSaldoInicial = valor(
+    151,
+    168
+  )
+  val situacaoSaldoInicial = string(
+    169,
+    169
+  )
   val posicaoSaldoInicial = posicaoSaldo(170)
-  val moeda = string(171, 173)
-  val sequancia = numero(174, 178)
+  val moeda = string(
+    171,
+    173
+  )
+  val sequencia = numero(
+    174,
+    178
+  )
 }
 
-class RegistroDetalheLote(linha: String) : Registro(linha) {
+class RegistroDetalhe(linha: String) : Registro<RegistroDetalhe>(linha) {
+  override val campos: List<KProperty1<RegistroDetalhe, Campo>>
+    get() = listOf(
+      RegistroDetalhe::tipoInscricao,
+      RegistroDetalhe::inscricao,
+      RegistroDetalhe::convenio,
+      RegistroDetalhe::agencia,
+      RegistroDetalhe::conta,
+      RegistroDetalhe::nomeEmpresa,
+      RegistroDetalhe::natureza,
+      RegistroDetalhe::dataLancamento,
+      RegistroDetalhe::valorLancamento,
+      RegistroDetalhe::tipoLancamento,
+      RegistroDetalhe::categoriaLancamento,
+      RegistroDetalhe::codigoHitorico,
+      RegistroDetalhe::historico,
+      RegistroDetalhe::numeroDocumento
+    )
   val tipoInscricao = tipoInscricao(18)
-  val inscricao = numero(19, 32)
-  val convenio = string(33, 52)
-  val agencia = numeroDigito(53, 58)
-  val conta = numeroDigito(59, 71)
-  val nomeEmpresa = string(73, 102)
+  val inscricao = string(
+    19,
+    32
+  )
+  val convenio = string(
+    33,
+    52
+  )
+  val agencia = numeroDigito(
+    53,
+    58
+  )
+  val conta = numeroDigito(
+    59,
+    71
+  )
+  val nomeEmpresa = string(
+    73,
+    102
+  )
   val natureza = naturezaLancamento(109)
   val dataLancamento = date(143)
-  val valorLancamento = valor(151, 168)
-  val tipoLancamento = string(169, 169)
+  val valorLancamento = valor(
+    151,
+    168
+  )
+  val tipoLancamento = string(
+    169,
+    169
+  )
   val categoriaLancamento = categoriaLancamento(170)
-  val codigoHitorico = string(173, 176)
-  val historico = string(177, 201)
-  val numeroDocumento = string(202, 240)
+  val codigoHitorico = string(
+    173,
+    176
+  )
+  val historico = string(
+    177,
+    201
+  )
+  val numeroDocumento = string(
+    202,
+    240
+  )
 }
 
-class RegistroTrailerArquivo(linha: String) : Registro(linha) {
-  val quantLotes = numero(18, 23)
-  val quantRegistros = numero(24, 29)
-  val quantContas = numero(30, 35)
+class RegistroTrailerArquivo(linha: String) : Registro<RegistroTrailerArquivo>(linha) {
+  override val campos: List<KProperty1<RegistroTrailerArquivo, Campo>>
+    get() = listOf()
+  val quantLotes = numero(
+    18,
+    23
+  )
+  val quantRegistros = numero(
+    24,
+    29
+  )
+  val quantContas = numero(
+    30,
+    35
+  )
 }
 
-class RegistroHeaderArquivo(linha: String) : Registro(linha) {
-  val nomeBanco = string(103, 132)
+class RegistroHeaderArquivo(linha: String) : Registro<RegistroHeaderArquivo>(linha) {
+  override val campos: List<KProperty1<RegistroHeaderArquivo, Campo>>
+    get() = listOf(
+      RegistroHeaderArquivo::nomeBanco,
+      RegistroHeaderArquivo::tipoArquivo,
+      RegistroHeaderArquivo::dataGeracao,
+      RegistroHeaderArquivo::horaGeracao,
+      RegistroHeaderArquivo::sequencial,
+      RegistroHeaderArquivo::layout,
+      RegistroHeaderArquivo::densidade
+    )
+  val nomeBanco = string(
+    103,
+    132
+  )
   val tipoArquivo = tipoArquivo(143)
   val dataGeracao = date(144)
   val horaGeracao = hora(152)
-  val sequencial = numero(158, 163)
-  val layout = numero(164, 166)
-  val densidade = numero(167, 171)
+  val sequencial = numero(
+    158,
+    163
+  )
+  val layout = numero(
+    164,
+    166
+  )
+  val densidade = numero(
+    167,
+    171
+  )
+  val lotes = ArrayList<RegistroHeaderLote<*>>()
+  fun add(registro: RegistroHeaderLote<*>) = lotes.add(registro)
 }
 
 data class Campo(
